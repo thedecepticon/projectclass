@@ -15,13 +15,13 @@
 
 class environment{
   public:
-    environment(char id):id(id){}
-    char id;
+    environment(unsigned char id):id(id){}
+    unsigned char id;
 };
 
 class organism: public environment{
     public:
-      organism(char id):environment(id){}
+      organism(unsigned char id):environment(id){}
       //psuedo
       //bool edible(char eats){if (eats in foodchain) return true}
       
@@ -54,7 +54,7 @@ struct area_map{
         col = 0; //reset for next row (consider int old_col as a means of finding a maximum column width as a just in case)
         std::vector<environment*> currentrow;
         std::istringstream ss(line);
-        char charIn;
+        unsigned char charIn;
         while(ss>>std::noskipws>>charIn){//don't skip whitespace
             col++;
             //std::cout<<"pushing: " << charIn<<std::endl;
@@ -78,7 +78,7 @@ struct area_map{
       //std::cout << out.str(); //when input arg changed to ostringstream
             
   }
-  environment* categorize(char alpha){
+  environment* categorize(unsigned char alpha){
     switch(alpha){
       case '~': return new environment('~');
       case ' ': return new environment(' ');
@@ -95,13 +95,13 @@ struct area_map{
   }
   class planta: public organism{
     public:
-      planta(char id): organism(id){}
+      planta(unsigned char id): organism(id){}
       int regrowth = 1;
       int energy = 5;
   };
   class plantb: public organism{
     public:
-      plantb(char id): organism(id){}
+      plantb(unsigned char id): organism(id){}
       int regrowth = 1;
       int energy = 5;
   };
@@ -109,13 +109,13 @@ struct area_map{
   //food chain type organism? or keep simple with organism char id
   class herbivoreA: public organism{
     public:
-      herbivoreA(char id):organism(id){}
+      herbivoreA(unsigned char id):organism(id){}
       char foodchain[2]= { 'a', 'b'};
       int max_energy=20;
   };
   class herbivoreB: public organism{
     public:
-      herbivoreB(char id):organism(id){}
+      herbivoreB(unsigned char id):organism(id){}
       char foodchain[1]= { 'b' };
       int max_energy=15;
     
@@ -123,14 +123,14 @@ struct area_map{
 
   class omnivoreC : public organism {
     public:
-      omnivoreC(char id):organism(id){}
+      omnivoreC(unsigned char id):organism(id){}
       char foodchain[2]= {'A', 'D'};
       int max_energy=40;
   };
 
   class omnivoreD : public organism{
     public:
-      omnivoreD(char id):organism(id){}
+      omnivoreD(unsigned char id):organism(id){}
       char foodchain[3]= { 'A', 'B', 'C'};
       int max_energy=30;
   };
@@ -138,7 +138,7 @@ struct area_map{
   const point& extent() const {return p;} 
   //methods
   //char& at(int i, int j){return myMap[j][i]; }
-  const char& at(int i, int j) const {return myMap[j][i]->id; }     
+  const unsigned char& at(int i, int j) const {return myMap[j][i]->id; }     
   //members
   //dimension of the matrix (col x row)
   point p;
