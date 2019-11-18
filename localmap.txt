@@ -1,0 +1,142 @@
+//holding my code which removed some errors, but required redefining organism
+fixed by replacing localmap env(12,48); with localmap env(); note not fixed, now it thinks it is a function declaration
+https://stackoverflow.com/questions/41114283/why-does-the-compiler-think-my-object-declaration-is-a-function-declaration
+
+now fixed with localmap env;
+
+
+//trouble making localmap env within the environment class
+main.cpp:76:19: error: expected parameter declarator
+  localmap envMap(12,48); //error when trying to initializ...
+                  ^
+main.cpp:76:19: error: expected ')'
+main.cpp:76:18: note: to match this '('
+  localmap envMap(12,48); //error when trying to initializ...
+
+
+
+//redeclare organism but fixes error: constructor for 'localmap::matrix' must explicitly initialize the member 'p' which does not have a default constructor
+//error: field has incomplete type
+//error: member initializer 'envMap' does not name a non-static data member or base class (part of the environment class)
+// class localmap{
+//   public:
+//     localmap(){}
+//     localmap(int x, int y):myMap(point(y,x)){}
+    
+//     class organism{
+//     public:
+//       organism(char id):id(id){}
+//       //psuedo
+//       //bool edible(char eats){if (eats in foodchain) return true}
+
+//       //virtual bool moveable;
+       
+//       char id;
+//     };
+//     class point {
+
+  
+//       public:
+//       point(int x, int y): x(x),y(y){}
+//       point(){}
+//       //as a member function we can make x,y private
+//       //interesting as operator overload becomes friend to class the comparison doesn't require the accessors (when x,y private)
+//       bool operator==( point const& p ) const { return x == p.x && y == p.y; }
+//       //for loop in test case requires access
+//       //but we could potentially privatize them (not allowed to modify)
+//       const int& getY() const {return y;}
+//       const int& getX() const {return x;}
+//       //private:
+//       int x = 48;
+//       int y = 12;
+
+//     };
+//     using org = organism;
+//     class mmatrix {
+//       public:
+//       //constructor; initialize matrix
+//       mmatrix():myMatrix(48,std::vector<org>(12,org('x'))){}
+//       mmatrix(point p): p(p),myMatrix(p.getY(), std::vector<org>(p.getX(),org('x')) ){}
+//       // matrix(int x, int y){myMatrix(y,std::vector<org>(x,org('x')))}
+//       //matrix size stored as a point (backwards y = row x = col)
+//       const point& extent() const {return p;} 
+//       //methods
+//       org& at(int i, int j){return myMatrix[j][i]; }
+//       const org& at(int i, int j) const {return myMatrix[j][i]; }
+
+//       const org& at(point p) const {return myMatrix[p.getY()][p.getX()]; }
+
+//       //overloaded operators
+//       org& operator[](point p){return myMatrix[p.getY()][p.getX()]; }
+//       const org& operator[](point p) const {return myMatrix[p.getY()][p.getX()]; }
+  
+  
+//       //members
+//       private:
+//       //dimension of the matrix (col x row)
+//       point p;
+//       //zero initialized matrix made with a vector of vectors
+//       std::vector<std::vector<org> > myMatrix;
+//     };//end matrix
+
+  
+//   mmatrix myMap;
+
+// };//end map
+
+//class localmap;
+class localmap{
+  public:
+    localmap(){}
+    localmap(int x, int y):myMap(point(y,x)){}
+    
+    //potentially add accessor functions for the map to maintain encapsulating matrix and point
+
+    class point {
+      public:
+      point(int x, int y): x(x),y(y){}
+      point(){}
+      bool operator==( point const& p ) const { return x == p.x && y == p.y; }
+      //for loop in test case requires access
+      //but we could potentially privatize them (not allowed to modify)
+      const int& getY() const {return y;}
+      const int& getX() const {return x;}
+      //private:
+      int x = 48;
+      int y = 12;
+
+    };
+
+    using org = organism; //alias declarations are a cpp11 extension
+
+    class mmatrix {
+      public:
+      //constructor; initialize matrix
+      mmatrix():myMatrix(48,std::vector<org>(12,org('x'))){}
+      mmatrix(point p): p(p),myMatrix(p.getY(), std::vector<org>(p.getX(),org('x')) ){}
+      // matrix(int x, int y){myMatrix(y,std::vector<org>(x,org('x')))}
+      //matrix size stored as a point (backwards y = row x = col)
+      const point& extent() const {return p;} 
+      //methods
+      org& at(int i, int j){return myMatrix[j][i]; }
+      const org& at(int i, int j) const {return myMatrix[j][i]; }
+
+      const org& at(point p) const {return myMatrix[p.getY()][p.getX()]; }
+
+      //overloaded operators
+      org& operator[](point p){return myMatrix[p.getY()][p.getX()]; }
+      const org& operator[](point p) const {return myMatrix[p.getY()][p.getX()]; }
+  
+  
+      //members
+      private:
+      //dimension of the matrix (col x row)
+      point p;
+      //zero initialized matrix made with a vector of vectors
+      std::vector<std::vector<org> > myMatrix;
+    };//end matrix
+
+  
+  mmatrix myMap;
+
+};//end map
