@@ -50,19 +50,23 @@ struct area_map{
   }
   area_map(std::istream& incoming,std::istream& spec){
     species = readSpecies(spec);
-    envMap = read(incoming); //constructor initiates the read
+    myMap = read(incoming); //constructor initiates the read
   }
   std::vector<std::vector<environment*> > read(std::istream& incoming){
     std::vector<std::vector<environment*> > localMap;
     int row = 0;
     int col = 0;
-    for(std::string line; std::getline(incoming, line);){
+    std::string line;
+    while(std::getline(incoming, line)){
         //std::cout<<"Line is: " <<line <<":end"<< std::endl;
         //dimension inspection
-        if(localMap.size() && line.size() != localMap.front().size())
-            return std::vector<std::vector<environment*> >();
-        row++;
         
+        //line dimension check integration fails on the last row. due to missing new line characters?
+        // if(localMap.size() && line.size() != localMap.front().size())
+        //     std::cout<<"dimension error "<<localMap.size()<<" "<<line.size()<<" "<< localMap.front().size()<< " " << row << std::endl;
+            // return std::vector<std::vector<environment*> >();
+
+        row++;
         col = 0; //reset for next row (consider int old_col as a means of finding a maximum column width as a just in case)
         std::vector<environment*> currentrow;
         std::istringstream ss(line);
@@ -79,8 +83,10 @@ struct area_map{
     }
     //std::cout<<"Row: "<< row << " Col: "<<col<<std::endl;
     //update the point of the class (recall backward than used to col x row)
-    p.x = col;
-    p.y = row;
+    // p.x = col;
+    // p.y = row;
+    // std::cout<<localMap.size()<<" "<<localMap.front().size()<< col<< std::endl;
+    return localMap;
   }
   void save(std::ostream& out) const{
       for ( auto j = 0; j < extent().y; ++j ){
@@ -100,65 +106,70 @@ struct area_map{
       case '~': return new environment('~');
       case ' ': return new environment(' ');
       case '#': return new environment('#');
-      case 'a': return new planta('a');
-      case 'b': return new plantb('b');
-      case 'A': return new herbivoreA('A');
-      case 'B': return new herbivoreB('B');
-      case 'C': return new omnivoreC('C');
-      case 'D': return new omnivoreD('D');
+      // case 'a': return new planta('a');
+      // case 'b': return new plantb('b');
+      // case 'A': return new herbivoreA('A');
+      // case 'B': return new herbivoreB('B');
+      // case 'C': return new omnivoreC('C');
+      // case 'D': return new omnivoreD('D');
 
     }
     return new environment('x');//indicate error
   }
-  class planta: public organism{
-    public:
-      planta(unsigned char id): organism(id){}
-      int regrowth = 1;
-      int energy = 5;
-  };
-  class plantb: public organism{
-    public:
-      plantb(unsigned char id): organism(id){}
-      int regrowth = 3;
-      int energy = 10;
-  };
+  // class planta: public organism{
+  //   public:
+  //     planta(unsigned char id): organism(id){}
+  //     int regrowth = 1;
+  //     int energy = 5;
+  // };
+  // class plantb: public organism{
+  //   public:
+  //     plantb(unsigned char id): organism(id){}
+  //     int regrowth = 3;
+  //     int energy = 10;
+  // };
 
-  //food chain type organism? or keep simple with organism char id
-  class herbivoreA: public organism{
-    public:
-      herbivoreA(unsigned char id):organism(id){}
-      char foodchain[2]= { 'a', 'b'};
-      int max_energy=20;
-  };
-  class herbivoreB: public organism{
-    public:
-      herbivoreB(unsigned char id):organism(id){}
-      char foodchain[1]= { 'b' };
-      int max_energy=15;
+  // //food chain type organism? or keep simple with organism char id
+  // class herbivoreA: public organism{
+  //   public:
+  //     herbivoreA(unsigned char id):organism(id){}
+  //     char foodchain[2]= { 'a', 'b'};
+  //     int max_energy=20;
+  // };
+  // class herbivoreB: public organism{
+  //   public:
+  //     herbivoreB(unsigned char id):organism(id){}
+  //     char foodchain[1]= { 'b' };
+  //     int max_energy=15;
     
-  };
+  // };
 
-  class omnivoreC : public organism {
-    public:
-      omnivoreC(unsigned char id):organism(id){}
-      char foodchain[2]= {'A', 'D'};
-      int max_energy=40;
-  };
+  // class omnivoreC : public organism {
+  //   public:
+  //     omnivoreC(unsigned char id):organism(id){}
+  //     char foodchain[2]= {'A', 'D'};
+  //     int max_energy=40;
+  // };
 
-  class omnivoreD : public organism{
-    public:
-      omnivoreD(unsigned char id):organism(id){}
-      char foodchain[3]= { 'A', 'B', 'C'};
-      int max_energy=30;
-  };
+  // class omnivoreD : public organism{
+  //   public:
+  //     omnivoreD(unsigned char id):organism(id){}
+  //     char foodchain[3]= { 'A', 'B', 'C'};
+  //     int max_energy=30;
+  // };
   
-  const point& extent() const {return p;} 
+  point extent() const {
+    //integration of extent without point requires adjustment
+    auto nrows = myMap.size();
+    return nrows > 0
+        ? point( myMap.front().size()-1, nrows )
+        : point();} 
   //methods
   //char& at(int i, int j){return myMap[j][i]; }
   const unsigned char& at(int i, int j) const {return myMap[j][i]->id; }     
   //members
   //dimension of the matrix (col x row)
-  point p;
+  //point p;
   std::vector<std::vector<environment*> > myMap;
   std::map<unsigned char,attr> species;
 };
