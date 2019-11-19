@@ -1,3 +1,8 @@
+
+
+#include "species.hpp"
+#include "attributes.hpp"
+
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -17,17 +22,16 @@ class environment{
   public:
     environment(unsigned char id):id(id){}
     unsigned char id;
+    bool moveable = false;
 };
 
 class organism: public environment{
     public:
       organism(unsigned char id):environment(id){}
-      //psuedo
-      //bool edible(char eats){if (eats in foodchain) return true}
+      organism(unsigned char id, attr info):environment(id),specs(info){}
+      organism* pos_overlap; //point to an object that we're taking the place of
+      attr specs; //dynamic attributes of an organism
       
-      //virtual bool moveable;
-       
-      // char id;
     };
 
 
@@ -41,16 +45,24 @@ class point {
       int y = 0;
   };
 struct area_map{
-  
   area_map(std::istream& incoming){
-    read(incoming); //constructor initiates the read
+    read(incoming);
   }
-  void read(std::istream& incoming){
+  area_map(std::istream& incoming,std::istream& spec){
+    species = readSpecies(spec);
+    envMap = read(incoming); //constructor initiates the read
+  }
+  std::vector<std::vector<environment*> > read(std::istream& incoming){
+    std::vector<std::vector<environment*> > localMap;
     int row = 0;
     int col = 0;
     for(std::string line; std::getline(incoming, line);){
         //std::cout<<"Line is: " <<line <<":end"<< std::endl;
+        //dimension inspection
+        if(localMap.size() && line.size() != localMap.front().size())
+            return std::vector<std::vector<environment*> >();
         row++;
+        
         col = 0; //reset for next row (consider int old_col as a means of finding a maximum column width as a just in case)
         std::vector<environment*> currentrow;
         std::istringstream ss(line);
@@ -59,9 +71,11 @@ struct area_map{
             col++;
             //std::cout<<"pushing: " << charIn<<std::endl;
             //currentrow.push_back(charIn); //push characters into current row
+            
             currentrow.push_back(categorize(charIn));
+            
         }          
-        myMap.push_back(currentrow);//push finished row into matrix
+        localMap.push_back(currentrow);//push finished row into matrix
     }
     //std::cout<<"Row: "<< row << " Col: "<<col<<std::endl;
     //update the point of the class (recall backward than used to col x row)
@@ -79,6 +93,9 @@ struct area_map{
             
   }
   environment* categorize(unsigned char alpha){
+    if(species.count(alpha)>0){
+      return new organism(alpha,species.find(alpha)->second);
+    }
     switch(alpha){
       case '~': return new environment('~');
       case ' ': return new environment(' ');
@@ -102,8 +119,8 @@ struct area_map{
   class plantb: public organism{
     public:
       plantb(unsigned char id): organism(id){}
-      int regrowth = 1;
-      int energy = 5;
+      int regrowth = 3;
+      int energy = 10;
   };
 
   //food chain type organism? or keep simple with organism char id
@@ -143,16 +160,16 @@ struct area_map{
   //dimension of the matrix (col x row)
   point p;
   std::vector<std::vector<environment*> > myMap;
+  std::map<unsigned char,attr> species;
 };
 
 
 class simulation{
   public:
-  simulation(std::istream& in):envMap(in){}
+  simulation(std::istream& inMap,std::istream& inSpecies):envMap(inMap,inSpecies){}
 
   
-
-  void print(){
+  void printMap(){
     std::ostringstream out;
     envMap.save(out);
     std::cout<<out.str()<<std::endl;
@@ -168,7 +185,7 @@ class simulation{
   
   //map for read to load for the sim
   area_map envMap; //error when trying to initialize as envMap(12,48) 
-
+  // std::map<unsigned char,attr> species;
   //vector of organisms for iteration
 
   //counter
@@ -184,45 +201,53 @@ class simulation{
 //menu (engine) input loop q to quit or type a map name to open test/verify, then 2nd input interation count
 
 int main() {
-  organism a1('o');
-  std::cout<<a1.id<<std::endl;
+  //base testing
+  // organism a1('o');
+  // std::cout<<a1.id<<std::endl;
 
-  area_map::planta p1('a');
-  std::cout<<p1.id<<std::endl;
+  // area_map::planta p1('a');
+  // std::cout<<p1.id<<std::endl;
 
-  std::fstream readMap("map.txt");
-  area_map areaMap(readMap); //map initialized with organism x
-  std::cout << areaMap.at(3,3) <<std::endl;
-  readMap.close();
+  // std::fstream readMap("map.txt");
+  // area_map areaMap(readMap); //map initialized with organism x
+  // std::cout << areaMap.at(3,3) <<std::endl;
+  // readMap.close();
   
+  std::fstream readS("species.txt");
+
   std::fstream readM("map.txt"); //make a new file stream reading the stream exhausts it
-  simulation sim(readM);
+  simulation sim(readM,readS);
   readM.close();
-  std::cout<< sim.envMap.at(0,0) <<std::endl;
-  point point1(3,3);
+  // std::cout<< sim.envMap.at(0,0) <<std::endl;
+  // point point1(3,3);
 
   
   //sim.envMap.at(3,3) = p1; 
-  std::cout<<sim.envMap.at(3,3) <<std::endl;
+  // std::cout<<sim.envMap.at(3,3) <<std::endl;
 
   //test printing map
-  // std::ostringstream out;
-  // sim.envMap.save(out);
-  // std::cout<<out.str();
-  sim.print();
+  sim.printMap();
   //test save file
-  // std::ofstream output("testSave.txt");
-  // sim.envMap.save(output);
-  // output.close();
+ 
   sim.saveMap();
 
   //reading the saved map
+  std::fstream readS2("species.txt");
   std::fstream read2nd("testSave.txt");
-  simulation testtwo(read2nd);
-  // std::ostringstream outtwo;
-  // testtwo.envMap.save(outtwo);
-  // std::cout<<std::endl << outtwo.str();
+  simulation testtwo(read2nd,readS2);
   read2nd.close();
+  //testtwo.print();
+
+  //species file testing
+  std::fstream rdspecies("species.txt");
+  std::map<unsigned char, attr> species = readSpecies(rdspecies);
+  rdspecies.close();
+  // for (auto e : species)
+  //   std::cout << e.second.type<<std::endl;
+
+  print(species);
   
-  testtwo.print();
+  std::ofstream output("testSaveSpecies.txt");
+  saveSpecies(output, species);
+  output.close();
 }
