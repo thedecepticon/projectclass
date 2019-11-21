@@ -61,7 +61,7 @@ struct area_map{
         //std::cout<<"Line is: " <<line <<":end"<< std::endl;
         //dimension inspection
         
-        //line dimension check integration fails on the last row. due to missing new line characters?
+        //line dimension check integration fails on the last row. due to missing new line characters? and is different between given file and saved file. cr/lf vs lf
         // if(localMap.size() && line.size() != localMap.front().size())
         //     std::cout<<"dimension error "<<localMap.size()<<" "<<line.size()<<" "<< localMap.front().size()<< " " << row << std::endl;
             // return std::vector<std::vector<environment*> >();
