@@ -7,16 +7,16 @@
 #include <iostream>
 #include <sstream>
 
-std::set<unsigned char> filter{',', '[', ']', ' '};
+std::set<char> filter{',', '[', ']', ' '};
 
-std::map<unsigned char,attr> readSpecies(std::istream& input){
-    std::map<unsigned char, attr> attributes;
+std::map<char,attr> readSpecies(std::istream& input){
+    std::map<char, attr> attributes;
     
     for(std::string line; std::getline(input,line);){
       //std::cout << line << std::endl;
       std::istringstream in(line);
       std::string type;
-      unsigned char id;
+      char id;
       std::string foodchain;
       int max_energy;
       int regrowth;
@@ -30,7 +30,7 @@ std::map<unsigned char,attr> readSpecies(std::istream& input){
       else{
           getline(in, foodchain,']');
           in >> max_energy;
-          std::vector<unsigned char> edible;
+          std::vector<char> edible;
           for (int i = 0; i < foodchain.size(); ++i){
               if(filter.count(foodchain[i])==0){
                 char foodtoken = foodchain[i];
@@ -45,7 +45,7 @@ std::map<unsigned char,attr> readSpecies(std::istream& input){
     return attributes;
 }
 
-void saveSpecies(std::ostream& out, std::map<unsigned char, attr>const& species) {
+void saveSpecies(std::ostream& out, std::map<char, attr>const& species) {
 
       for(auto e: species){
         if (e.second.type=="plant"){
@@ -64,7 +64,7 @@ void saveSpecies(std::ostream& out, std::map<unsigned char, attr>const& species)
   
 }
 
-void print(std::map<unsigned char, attr>const& attr){
+void print(std::map<char, attr>const& attr){
     std::ostringstream out;
     saveSpecies(out,attr);
     std::cout<<out.str()<<std::endl;

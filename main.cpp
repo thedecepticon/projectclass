@@ -3,11 +3,10 @@
 #include "species.hpp"
 #include "attributes.hpp"
 
-#include <iostream>
-#include <vector>
 #include <fstream>
 #include <sstream>
-
+#include <vector>
+#include <iostream>
 //building components for class project
 //link to base github announcement https://github.com/uiowa-cs-3210-0001/cs3210-assignments-fall2019/tree/master/course-project
 //concepts
@@ -17,18 +16,19 @@
 //read istream https://repl.it/@Sorceror89/hw10-problem1
 //https://repl.it/@Sorceror89/hw11-problem1
 //https://repl.it/@Sorceror89/stringtolist
+//https://repl.it/@Sorceror89/Readline     //error reproduction
 
 class environment{
   public:
-    environment(unsigned char id):id(id){}
-    unsigned char id;
+    environment(char id):id(id){}
+    char id;
     bool moveable = false;
 };
 
 class organism: public environment{
     public:
-      organism(unsigned char id):environment(id){}
-      organism(unsigned char id, attr info):environment(id),specs(info){}
+      organism(char id):environment(id){}
+      organism(char id, attr info):environment(id),specs(info){}
       organism* pos_overlap; //point to an object that we're taking the place of
       attr specs; //dynamic attributes of an organism
       
@@ -45,9 +45,9 @@ class point {
       int y = 0;
   };
 struct area_map{
-  area_map(std::istream& incoming){
-    read(incoming);
-  }
+  // area_map(std::istream& incoming){
+  //   read(incoming);
+  // }
   area_map(std::istream& incoming,std::istream& spec){
     species = readSpecies(spec);
     myMap = read(incoming); //constructor initiates the read
@@ -77,7 +77,7 @@ struct area_map{
         col = 0; //reset for next row (consider int old_col as a means of finding a maximum column width as a just in case)
         std::vector<environment*> currentrow;
         std::istringstream ss(line);
-        unsigned char charIn;
+        char charIn;
         while(ss>>std::noskipws>>charIn){//don't skip whitespace
             
             //std::cout<<"pushing: " << charIn<<std::endl;
@@ -93,20 +93,23 @@ struct area_map{
     //update the point of the class (recall backward than used to col x row)
     // p.x = col;
     // p.y = row;
-    // std::cout<<localMap.size()<<" "<<localMap.front().size()<< col<< std::endl;
+    //std::cout<<localMap.size()<<" "<<localMap.front().size()<< col<< std::endl;
     return localMap;
   }
   void save(std::ostream& out) const{
+    std::cout<<"(front.size , size) " << myMap.front().size()<<","<<myMap.size()<< " (back.size) "<<myMap.back().size()<<std::endl;
+    std::cout<<"extent subtracts 1 from front.size"<<std::endl;
+    
       for ( auto j = 0; j < extent().y; ++j ){
             for ( auto i = 0; i < extent().x; ++i )
                 out<< at( i, j );
-            if (j !=extent().y-1) out <<"\r\n";//tag new lines when another row will be processed (none for last line)
+            if (j !=extent().y-1) out <<"\n";//tag new lines when another row will be processed (none for last line)
             //out<<"\n";  // new line every time
       }
       //std::cout << out.str(); //when input arg changed to ostringstream
             
   }
-  environment* categorize(unsigned char alpha){
+  environment* categorize(char alpha){
     if(species.count(alpha)>0){
       return new organism(alpha,species.find(alpha)->second);
     }
@@ -121,18 +124,22 @@ struct area_map{
   
   point extent() const {
     //integration of extent without point requires adjustment
-    auto nrows = myMap.size();
-    return nrows > 0
-        ? point( myMap.front().size()-1, nrows )
-        : point();} 
+    
+    if (myMap.size()){ //captures seg fault if map not init
+      return point (myMap.front().size()-1,myMap.size());
+    }
+    else{
+      return point();
+    }
+  }
   //methods
   //char& at(int i, int j){return myMap[j][i]; }
-  const unsigned char& at(int i, int j) const {return myMap[j][i]->id; }     
+  const char& at(int i, int j) const {return myMap[j][i]->id; }     
   //members
   //dimension of the matrix (col x row)
   //point p;
   std::vector<std::vector<environment*> > myMap;
-  std::map<unsigned char,attr> species;
+  std::map<char,attr> species;
 };
 
 
@@ -143,12 +150,12 @@ class simulation{
   
   void printMap(){
     std::ostringstream out;
-    envMap.save(out);
+    envMap.save(out);  //save reused
     std::cout<<out.str()<<std::endl;
   }
   void saveMap(std::string fn="testSave.txt"){
     std::ofstream output(fn);
-    envMap.save(output);
+    envMap.save(output); //save resused
     output.close();
   }
   //read should add objects to map and to organism vector when appropriate
@@ -157,8 +164,6 @@ class simulation{
   
   //map for read to load for the sim
   area_map envMap; //error when trying to initialize as envMap(12,48) 
-  // std::map<unsigned char,attr> species;
-  //vector of organisms for iteration
 
   //counter
   //concatenate a string with a stringified integer to dynamically name living organism and subsequently count the total number of living organism for the lifetime of the simulation
@@ -190,20 +195,36 @@ int main() {
   std::fstream readM("map.txt"); 
   simulation sim(readM,readS);
   readM.close();
+  std::cout<<"Printing map"<<std::endl;
   sim.printMap();
+  std::cout<<"saving to file"<<std::endl;
   sim.saveMap();//testSave.txt
+  // std::cout<<sim.envMap.at(48,12)<<std::endl; //space
+  // //std::cout<<sim.envMap.at(49,12)<<std::endl; //seg fault
+  // std::cout<<sim.envMap.at(49,11)<<std::endl; // x 
+  // std::cout<<sim.envMap.at(49,0)<<std::endl; //shows the x id
 
   //saved map read
   std::fstream readS2("species.txt");
   std::fstream read2nd("testSave.txt");
   simulation testtwo(read2nd,readS2);
   read2nd.close();
+  std::cout<<"Printing map"<<std::endl;
   testtwo.printMap();
+  std::cout<<"saving to file"<<std::endl;
   testtwo.saveMap("testSavingAReadSave.txt");
+  // std::cout<<testtwo.envMap.at(43,0)<<std::endl;
+  // std::cout<<testtwo.envMap.at(44,0)<<std::endl;
+  // std::cout<<testtwo.envMap.at(45,0)<<std::endl;
+  // std::cout<<testtwo.envMap.at(46,0)<<std::endl;
+  // std::cout<<testtwo.envMap.at(47,0)<<std::endl;
+  // std::cout<<testtwo.envMap.at(48,0)<<std::endl;
+  // std::cout<<testtwo.envMap.at(49,0)<<std::endl; //seg fault
 
   //species file testing
+  std::cout<<std::endl;
   std::fstream rdspecies("species.txt");
-  std::map<unsigned char, attr> species = readSpecies(rdspecies);
+  std::map<char, attr> species = readSpecies(rdspecies);
   rdspecies.close();
   // for (auto e : species)
   //   std::cout << e.second.type<<std::endl;

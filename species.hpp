@@ -5,8 +5,8 @@
 #include <iostream>
 #include <map>
 
-std::map<unsigned char, attr> readSpecies(std::istream&);
-void saveSpecies(std::ostream& out, std::map<unsigned char, attr>const&);
-void print(std::map<unsigned char, attr>const&);
+std::map<char, attr> readSpecies(std::istream&);
+void saveSpecies(std::ostream& out, std::map<char, attr>const&);
+void print(std::map<char, attr>const&);
 
 #endif

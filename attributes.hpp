@@ -10,10 +10,10 @@ class attr{
     //plants
     attr(std::string t,int regrow, int m_energy):type(t), cur_energy(m_energy),max_energy(m_energy),regrowth(regrow){}
     //herb/omni
-    attr(std::string t,int m_energy, std::vector<unsigned char> f, bool move):type(t),cur_energy(m_energy), max_energy(m_energy),food(f),moveable(move){}
+    attr(std::string t,int m_energy, std::vector<char> f, bool move):type(t),cur_energy(m_energy), max_energy(m_energy),food(f),moveable(move){}
     int cur_energy=0;
     int max_energy=0;
-    std::vector<unsigned char> food;
+    std::vector<char> food;
     std::string type ="environment";
     int regrowth=0;
     bool moveable=false;
