@@ -126,7 +126,7 @@ struct area_map{
     //integration of extent without point requires adjustment
     
     if (myMap.size()){ //captures seg fault if map not init
-      return point (myMap.front().size()-1,myMap.size());
+      return point (myMap.front().size(),myMap.size());
     }
     else{
       return point();
