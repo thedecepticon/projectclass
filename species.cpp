@@ -1,5 +1,3 @@
-#ifndef SPECIES_HPP
-#define SPECIES_HPP
 
 #include "attributes.hpp"
 #include <map>
@@ -64,10 +62,9 @@ void saveSpecies(std::ostream& out, std::map<char, attr>const& species) {
   
 }
 
-void print(std::map<char, attr>const& attr){
+void printSpecies(std::map<char, attr>const& attr){
     std::ostringstream out;
     saveSpecies(out,attr);
     std::cout<<out.str()<<std::endl;
   }
 
-#endif

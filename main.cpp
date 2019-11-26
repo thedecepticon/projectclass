@@ -1,5 +1,10 @@
 
 
+#include "simulation.hpp"
+#include "area_map.hpp"
+#include "point.hpp"
+#include "organism.hpp"
+#include "environment.hpp"
 #include "species.hpp"
 #include "attributes.hpp"
 
@@ -8,7 +13,8 @@
 #include <vector>
 #include <iostream>
 
-#define DEBUG
+//#define DEBUG
+
 //building components for class project
 //link to base github announcement https://github.com/uiowa-cs-3210-0001/cs3210-assignments-fall2019/tree/master/course-project
 //concepts
@@ -20,152 +26,152 @@
 //https://repl.it/@Sorceror89/stringtolist
 //https://repl.it/@Sorceror89/Readline     //error reproduction
 
-class environment{
-  public:
-    environment(char id):id(id){}
-    char id;
-    bool moveable = false;
-};
+// class environment{
+//   public:
+//     environment(char id):id(id){}
+//     char id;
+//     bool moveable = false;
+// };
 
-class organism: public environment{
-    public:
-      organism(char id):environment(id){}
-      organism(char id, attr info):environment(id),specs(info){}
-      organism* pos_overlap; //point to an object that we're taking the place of
-      attr specs; //dynamic attributes of an organism
+// class organism: public environment{
+//     public:
+//       organism(char id):environment(id){}
+//       organism(char id, attr info):environment(id),specs(info){}
+//       organism* pos_overlap; //point to an object that we're taking the place of
+//       attr specs; //dynamic attributes of an organism
       
-    };
+//     };
 
 
-class point {
-      public:
-      point(int x, int y): x(x),y(y){}
-      point(){}
-      bool operator==( point const& p ) const { return x==p.x && y==p.y; }
-      bool operator!=( point const& p ) const{ return !( x==p.x && y==p.y ); }
-      int x = 0;
-      int y = 0;
-  };
+// class point {
+//       public:
+//       point(int x, int y): x(x),y(y){}
+//       point(){}
+//       bool operator==( point const& p ) const { return x==p.x && y==p.y; }
+//       bool operator!=( point const& p ) const{ return !( x==p.x && y==p.y ); }
+//       int x = 0;
+//       int y = 0;
+//   };
 
-struct area_map{
-  // area_map(std::istream& incoming){
-  //   read(incoming);
-  // }
-  area_map(std::istream& incoming,std::istream& spec){
-    species = readSpecies(spec);
-    myMap = read(incoming); //constructor initiates the read
-  }
-  std::vector<std::vector<environment*> > read(std::istream& incoming){
-      std::vector<std::vector<environment*> > localMap;
-      std::string line;
-#ifdef DEBUG
-      int row = 0;
-      int col = 0;
-      while(std::getline(incoming, line)){
-        std::cout<<"Line is: " << line <<":end"<< std::endl;
-        if(localMap.size() && line.size() != localMap.front().size()){
-            std::cout<<"dimension error "<<localMap.size()<<" "<< line.size() << " "<< localMap.front().size()<< " manual row count " << row << std::endl;
-        }
-        ++row;
-        col = 0;//reset for next row
-        std::vector<environment*> currentrow;
-        std::istringstream ss(line);
-        char charIn;
-        while(ss>>std::noskipws>>charIn){//don't skip whitespace
-            std::cout<<"pushing: " << charIn<<std::endl;
-            currentrow.push_back(categorize(charIn));
-            col++;
-        }          
-        localMap.push_back(currentrow);//push finished row into matrix
-      }
-      // p.x = col;
-      // p.y = row;
-      //std::cout<<"Row: "<< row << " Col: "<<col<<std::endl;
-      std::cout<<localMap.size()<<" "<<localMap.front().size()<< col<< std::endl;
-    return localMap;
-#else
-    while(std::getline(incoming, line)){
-        if(localMap.size() && line.size() != localMap.front().size()){
-            std::cout<<"map dimension mismatch"<<std::endl;
-            return std::vector<std::vector<environment*> >();
-        }
-        std::vector<environment*> currentrow;
-        std::istringstream ss(line);
-        char charIn;
-        while(ss>>std::noskipws>>charIn){//don't skip whitespace
-            currentrow.push_back(categorize(charIn));
-        }          
-        localMap.push_back(currentrow);//push finished row into matrix
-    }
-    return localMap;
-#endif    
-  }//end read()
+// struct area_map{
+//   // area_map(std::istream& incoming){
+//   //   read(incoming);
+//   // }
+//   area_map(std::istream& incoming,std::istream& spec){
+//     species = readSpecies(spec);
+//     myMap = read(incoming); //constructor initiates the read
+//   }
+//   std::vector<std::vector<environment*> > read(std::istream& incoming){
+//       std::vector<std::vector<environment*> > localMap;
+//       std::string line;
+// #ifdef DEBUG
+//       int row = 0;
+//       int col = 0;
+//       while(std::getline(incoming, line)){
+//         std::cout<<"Line is: " << line <<":end"<< std::endl;
+//         if(localMap.size() && line.size() != localMap.front().size()){
+//             std::cout<<"dimension error "<<localMap.size()<<" "<< line.size() << " "<< localMap.front().size()<< " manual row count " << row << std::endl;
+//         }
+//         ++row;
+//         col = 0;//reset for next row
+//         std::vector<environment*> currentrow;
+//         std::istringstream ss(line);
+//         char charIn;
+//         while(ss>>std::noskipws>>charIn){//don't skip whitespace
+//             std::cout<<"pushing: " << charIn<<std::endl;
+//             currentrow.push_back(categorize(charIn));
+//             col++;
+//         }          
+//         localMap.push_back(currentrow);//push finished row into matrix
+//       }
+//       // p.x = col;
+//       // p.y = row;
+//       //std::cout<<"Row: "<< row << " Col: "<<col<<std::endl;
+//       std::cout<<localMap.size()<<" "<<localMap.front().size()<< col<< std::endl;
+//     return localMap;
+// #else
+//     while(std::getline(incoming, line)){
+//         if(localMap.size() && line.size() != localMap.front().size()){
+//             std::cout<<"map dimension mismatch"<<std::endl;
+//             return std::vector<std::vector<environment*> >();
+//         }
+//         std::vector<environment*> currentrow;
+//         std::istringstream ss(line);
+//         char charIn;
+//         while(ss>>std::noskipws>>charIn){//don't skip whitespace
+//             currentrow.push_back(categorize(charIn));
+//         }          
+//         localMap.push_back(currentrow);//push finished row into matrix
+//     }
+//     return localMap;
+// #endif    
+//   }//end read()
 
-  void save(std::ostream& out) const{
-#ifdef DEBUG
-    std::cout<<"(front.size , size) " << myMap.front().size()<<","<<myMap.size()<< " (back.size) "<<myMap.back().size()<<std::endl;
-#endif
-      for ( auto j = 0; j < extent().y; ++j ){
-            for ( auto i = 0; i < extent().x; ++i )
-                out<< at( i, j );
-            if (j !=extent().y-1) out <<"\n";//tag new lines minus last row
-      }            
-  }
-  environment* categorize(char alpha){
-    if(species.count(alpha)>0){
-      return new organism(alpha,species.find(alpha)->second);
-    }
-    switch(alpha){
-      case '~': return new environment('~');
-      case ' ': return new environment(' ');
-      case '#': return new environment('#');
-    }
-    return new environment('x');//indicate error
-  }
+//   void save(std::ostream& out) const{
+// #ifdef DEBUG
+//     std::cout<<"(front.size , size) " << myMap.front().size()<<","<<myMap.size()<< " (back.size) "<<myMap.back().size()<<std::endl;
+// #endif
+//       for ( auto j = 0; j < extent().y; ++j ){
+//             for ( auto i = 0; i < extent().x; ++i )
+//                 out<< at( i, j );
+//             if (j !=extent().y-1) out <<"\n";//tag new lines minus last row
+//       }            
+//   }
+//   environment* categorize(char alpha){
+//     if(species.count(alpha)>0){
+//       return new organism(alpha,species.find(alpha)->second);
+//     }
+//     switch(alpha){
+//       case '~': return new environment('~');
+//       case ' ': return new environment(' ');
+//       case '#': return new environment('#');
+//     }
+//     return new environment('x');//indicate error
+//   }
  
   
-  point extent() const {
-    if (myMap.size()){ //captures seg fault if map not init
-      return point (myMap.front().size(),myMap.size());
-    }
-    else{
-      return point();
-    }
-  }
-  //char& at(int i, int j){return myMap[j][i]; }
-  const char& at(int i, int j) const {return myMap[j][i]->id; }  
-  //decide()
-  //check the area of the map around a living organism from the vector and try to decide if it is going to move, eat, grow, regrow, or flee.
+//   point extent() const {
+//     if (myMap.size()){ //captures seg fault if map not init
+//       return point (myMap.front().size(),myMap.size());
+//     }
+//     else{
+//       return point();
+//     }
+//   }
+//   //char& at(int i, int j){return myMap[j][i]; }
+//   const char& at(int i, int j) const {return myMap[j][i]->id; }  
+//   //decide()
+//   //check the area of the map around a living organism from the vector and try to decide if it is going to move, eat, grow, regrow, or flee.
 
-  //members
+//   //members
 
-  std::vector<std::vector<environment*> > myMap;
-  std::map<char,attr> species;
-};
+//   std::vector<std::vector<environment*> > myMap;
+//   std::map<char,attr> species;
+// }; //end area_map
 
 
-class simulation{
-  public:
-  simulation(std::istream& inMap,std::istream& inSpecies):envMap(inMap,inSpecies){}
+// class simulation{
+//   public:
+//   simulation(std::istream& inMap,std::istream& inSpecies):envMap(inMap,inSpecies){}
 
-  void printMap(){
-    std::ostringstream out;
-    envMap.save(out);  //save reused
-    std::cout<<out.str()<<std::endl;
-  }
+//   void printMap(){
+//     std::ostringstream out;
+//     envMap.save(out);  //save reused
+//     std::cout<<out.str()<<std::endl;
+//   }
 
-  void saveMap(std::string fn="testSave.txt"){
-    std::ofstream output(fn);
-    envMap.save(output); //save reused
-    output.close();
-  }
+//   void saveMap(std::string fn="testSave.txt"){
+//     std::ofstream output(fn);
+//     envMap.save(output); //save reused
+//     output.close();
+//   }
   
-  //map
-  area_map envMap; //error when trying to initialize as envMap(12,48) 
+//   //map
+//   area_map envMap; //error when trying to initialize as envMap(12,48) 
 
-  // engine/menu once started 
+//   // engine/menu once started 
   
-};//end class simulation
+// };//end class simulation
 
   
 //menu (engine) input loop q to quit or type a map name to open test/verify, then 2nd input interation count
@@ -204,8 +210,8 @@ int main() {
   read2nd.close();
   std::cout<<"Printing map"<<std::endl;
   testtwo.printMap();
-  std::cout<<"saving to file"<<std::endl;
-  testtwo.saveMap("testSavingAReadSave.txt");
+  //std::cout<<"saving to file"<<std::endl;
+  //testtwo.saveMap("testSavingAReadSave.txt");
   // std::cout<<testtwo.envMap.at(43,0)<<std::endl;
   // std::cout<<testtwo.envMap.at(44,0)<<std::endl;
   // std::cout<<testtwo.envMap.at(45,0)<<std::endl;
@@ -222,7 +228,7 @@ int main() {
   // for (auto e : species)
   //   std::cout << e.second.type<<std::endl;
 
-  print(species);
+  printSpecies(species);
   
   std::ofstream output("testSaveSpecies.txt");
   saveSpecies(output, species);
