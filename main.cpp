@@ -7,6 +7,8 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
+
+#define DEBUG
 //building components for class project
 //link to base github announcement https://github.com/uiowa-cs-3210-0001/cs3210-assignments-fall2019/tree/master/course-project
 //concepts
@@ -44,6 +46,7 @@ class point {
       int x = 0;
       int y = 0;
   };
+
 struct area_map{
   // area_map(std::istream& incoming){
   //   read(incoming);
@@ -53,61 +56,60 @@ struct area_map{
     myMap = read(incoming); //constructor initiates the read
   }
   std::vector<std::vector<environment*> > read(std::istream& incoming){
-    std::vector<std::vector<environment*> > localMap;
-    int row = 0;
-    int col = 0;
-    std::string line;
-    while(std::getline(incoming, line)){
-        //std::cout<<"Line is: " << line <<":end"<< std::endl;
-        //dimension inspection
-        //row 0 is not compared with anything
-        //line dimension check integration fails on the last row. due to missing new line characters? rather all lines contain crlf vs lf with the exception of the last row and the last row is the one triggering a bad dimension check.
-        if(localMap.size() && line.size() != localMap.front().size())
+      std::vector<std::vector<environment*> > localMap;
+      std::string line;
+#ifdef DEBUG
+      int row = 0;
+      int col = 0;
+      while(std::getline(incoming, line)){
+        std::cout<<"Line is: " << line <<":end"<< std::endl;
+        if(localMap.size() && line.size() != localMap.front().size()){
             std::cout<<"dimension error "<<localMap.size()<<" "<< line.size() << " "<< localMap.front().size()<< " manual row count " << row << std::endl;
-        //     // return std::vector<std::vector<environment*> >();
-
-           
-        // if(localMap.size()>0)
-        //   std::cout<<localMap.size()<<" "<< line.size() << " "<< localMap.front().size()<< " manual row count " << row << std::endl;
-        // else{
-        //   std::cout<<"row 0 not inspected"<<std::endl;
-        // }
-        ++row; 
-        // std::cout<<row<<std::endl;
-        col = 0; //reset for next row (consider int old_col as a means of finding a maximum column width as a just in case)
+        }
+        ++row;
+        col = 0;//reset for next row
         std::vector<environment*> currentrow;
         std::istringstream ss(line);
         char charIn;
         while(ss>>std::noskipws>>charIn){//don't skip whitespace
-            
-            //std::cout<<"pushing: " << charIn<<std::endl;
-            //currentrow.push_back(charIn); //push characters into current row
-            
+            std::cout<<"pushing: " << charIn<<std::endl;
             currentrow.push_back(categorize(charIn));
             col++;
-            
+        }          
+        localMap.push_back(currentrow);//push finished row into matrix
+      }
+      // p.x = col;
+      // p.y = row;
+      //std::cout<<"Row: "<< row << " Col: "<<col<<std::endl;
+      std::cout<<localMap.size()<<" "<<localMap.front().size()<< col<< std::endl;
+    return localMap;
+#else
+    while(std::getline(incoming, line)){
+        if(localMap.size() && line.size() != localMap.front().size()){
+            std::cout<<"map dimension mismatch"<<std::endl;
+            return std::vector<std::vector<environment*> >();
+        }
+        std::vector<environment*> currentrow;
+        std::istringstream ss(line);
+        char charIn;
+        while(ss>>std::noskipws>>charIn){//don't skip whitespace
+            currentrow.push_back(categorize(charIn));
         }          
         localMap.push_back(currentrow);//push finished row into matrix
     }
-    //std::cout<<"Row: "<< row << " Col: "<<col<<std::endl;
-    //update the point of the class (recall backward than used to col x row)
-    // p.x = col;
-    // p.y = row;
-    //std::cout<<localMap.size()<<" "<<localMap.front().size()<< col<< std::endl;
     return localMap;
-  }
+#endif    
+  }//end read()
+
   void save(std::ostream& out) const{
+#ifdef DEBUG
     std::cout<<"(front.size , size) " << myMap.front().size()<<","<<myMap.size()<< " (back.size) "<<myMap.back().size()<<std::endl;
-    std::cout<<"extent subtracts 1 from front.size"<<std::endl;
-    
+#endif
       for ( auto j = 0; j < extent().y; ++j ){
             for ( auto i = 0; i < extent().x; ++i )
                 out<< at( i, j );
-            if (j !=extent().y-1) out <<"\n";//tag new lines when another row will be processed (none for last line)
-            //out<<"\n";  // new line every time
-      }
-      //std::cout << out.str(); //when input arg changed to ostringstream
-            
+            if (j !=extent().y-1) out <<"\n";//tag new lines minus last row
+      }            
   }
   environment* categorize(char alpha){
     if(species.count(alpha)>0){
@@ -123,8 +125,6 @@ struct area_map{
  
   
   point extent() const {
-    //integration of extent without point requires adjustment
-    
     if (myMap.size()){ //captures seg fault if map not init
       return point (myMap.front().size(),myMap.size());
     }
@@ -132,12 +132,13 @@ struct area_map{
       return point();
     }
   }
-  //methods
   //char& at(int i, int j){return myMap[j][i]; }
-  const char& at(int i, int j) const {return myMap[j][i]->id; }     
+  const char& at(int i, int j) const {return myMap[j][i]->id; }  
+  //decide()
+  //check the area of the map around a living organism from the vector and try to decide if it is going to move, eat, grow, regrow, or flee.
+
   //members
-  //dimension of the matrix (col x row)
-  //point p;
+
   std::vector<std::vector<environment*> > myMap;
   std::map<char,attr> species;
 };
@@ -147,31 +148,23 @@ class simulation{
   public:
   simulation(std::istream& inMap,std::istream& inSpecies):envMap(inMap,inSpecies){}
 
-  
   void printMap(){
     std::ostringstream out;
     envMap.save(out);  //save reused
     std::cout<<out.str()<<std::endl;
   }
+
   void saveMap(std::string fn="testSave.txt"){
     std::ofstream output(fn);
-    envMap.save(output); //save resused
+    envMap.save(output); //save reused
     output.close();
   }
-  //read should add objects to map and to organism vector when appropriate
-  //map
-  //use a basic rectangle as an empty map clone with contains to check coordinates or error trap 2d array lookups??
   
-  //map for read to load for the sim
+  //map
   area_map envMap; //error when trying to initialize as envMap(12,48) 
 
-  //counter
-  //concatenate a string with a stringified integer to dynamically name living organism and subsequently count the total number of living organism for the lifetime of the simulation
-
-  //decide()
-  //check the area of the map around a living organism from the vector and try to decide if it is going to move, eat, grow, regrow, or flee.
-
-
+  // engine/menu once started 
+  
 };//end class simulation
 
   
