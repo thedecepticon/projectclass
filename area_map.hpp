@@ -11,6 +11,8 @@
 #include <sstream>
 #include <iostream>
 
+//#define DEBUG
+
 struct area_map{
   // area_map(std::istream& incoming){
   //   read(incoming);
