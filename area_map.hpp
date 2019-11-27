@@ -14,9 +14,9 @@
 //#define DEBUG
 
 struct area_map{
-  area_map(std::istream& incoming,std::istream& spec){
-    species = readSpecies(spec);
-    myMap = read(incoming); //constructor initiates the read
+  area_map(std::istream& inMap,std::istream& inSpec):mySpecies(inSpec){
+    //species = readSpecies(inSpec);
+    myMap = read(inMap); //constructor initiates the read
   }
   std::vector<std::vector<environment*> > read(std::istream& incoming){
       std::vector<std::vector<environment*> > localMap;
@@ -75,8 +75,8 @@ struct area_map{
       }            
   }
   environment* categorize(char alpha){
-    if(species.count(alpha)>0){
-      return new organism(alpha,species.find(alpha)->second);
+    if(mySpecies.mySpecies.count(alpha)>0){
+      return new organism(alpha,mySpecies.mySpecies.find(alpha)->second);
     }
     switch(alpha){
       case '~': return new environment('~');
@@ -101,7 +101,8 @@ struct area_map{
   //check the area of the map around a living organism from the vector and try to decide if it is going to move, eat, grow, regrow, or flee.
 
   //members
-  std::map<char,attr> species;
+  //std::map<char,attr> species;
+  species mySpecies;
   std::vector<std::vector<environment*> > myMap;
   
 }; //end area_map
