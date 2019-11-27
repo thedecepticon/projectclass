@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/FinalProject/v16/ipch/AutoPCH/9da29d87de8f20fa/MAIN.ipch
+/.vs/FinalProject/v16/Browse.VC.opendb
+/.vs/FinalProject/v16/Browse.VC.db
+/.vs/FinalProject/v16/.suo
+/.vs/FinalProject/v16/ipch/AutoPCH/ab0a541e1f093f23/SPECIES.ipch
+/.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite
