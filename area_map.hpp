@@ -14,9 +14,6 @@
 //#define DEBUG
 
 struct area_map{
-  // area_map(std::istream& incoming){
-  //   read(incoming);
-  // }
   area_map(std::istream& incoming,std::istream& spec){
     species = readSpecies(spec);
     myMap = read(incoming); //constructor initiates the read
@@ -104,9 +101,9 @@ struct area_map{
   //check the area of the map around a living organism from the vector and try to decide if it is going to move, eat, grow, regrow, or flee.
 
   //members
-
-  std::vector<std::vector<environment*> > myMap;
   std::map<char,attr> species;
+  std::vector<std::vector<environment*> > myMap;
+  
 }; //end area_map
 
 #endif
