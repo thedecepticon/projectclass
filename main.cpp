@@ -68,7 +68,7 @@ int main() {
   // for (auto e : species)
   //   std::cout << e.second.type<<std::endl;
 
-  species.printSpecies();
+  //species.printSpecies();
   
   std::ofstream output("testSaveSpecies.txt");
   species.saveSpecies(output);
