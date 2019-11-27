@@ -76,11 +76,11 @@ struct species {
   
   }
 
-  void printSpecies(){
-    std::ostringstream out;
-    saveSpecies(out);
-    std::cout<<out.str()<<std::endl;
-  }
+  // void printSpecies(){
+  //   std::ostringstream out;
+  //   saveSpecies(out);
+  //   std::cout<<out.str()<<std::endl;
+  // }
   std::map<char,attr> mySpecies;
 
 };
