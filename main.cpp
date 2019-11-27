@@ -48,6 +48,7 @@ int main() {
   read2nd.close();
   std::cout<<"Printing map"<<std::endl;
   testtwo.printMap();
+  testtwo.printSpecies();
   //std::cout<<"saving to file"<<std::endl;
   //testtwo.saveMap("testSavingAReadSave.txt");
   // std::cout<<testtwo.envMap.at(43,0)<<std::endl;
