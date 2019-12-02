@@ -20,7 +20,13 @@ class simulation{
     envMap.save(output); //save reused
     output.close();
   }
-  
+
+  void printSpecies(){
+    std::ostringstream out;
+    envMap.mySpecies.saveSpecies(out);
+    std::cout<<out.str()<<std::endl;
+  }
+
   //map
   area_map envMap; //error when trying to initialize as envMap(12,48) 
 

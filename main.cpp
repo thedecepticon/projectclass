@@ -14,6 +14,7 @@
 #include <map>
 #include <iostream>
 
+
 int main() {
   //base testing
   // organism a1('o');
@@ -48,6 +49,7 @@ int main() {
   read2nd.close();
   std::cout<<"Printing map"<<std::endl;
   testtwo.printMap();
+  testtwo.printSpecies();
   //std::cout<<"saving to file"<<std::endl;
   //testtwo.saveMap("testSavingAReadSave.txt");
   // std::cout<<testtwo.envMap.at(43,0)<<std::endl;
@@ -61,14 +63,15 @@ int main() {
   //species file testing
   std::cout<<std::endl;
   std::fstream rdspecies("species.txt");
-  std::map<char, attr> species = readSpecies(rdspecies);
+  // std::map<char, attr> species = readSpecies(rdspecies);
+  species species(rdspecies);
   rdspecies.close();
   // for (auto e : species)
   //   std::cout << e.second.type<<std::endl;
 
-  printSpecies(species);
+  //species.printSpecies();
   
   std::ofstream output("testSaveSpecies.txt");
-  saveSpecies(output, species);
+  species.saveSpecies(output);
   output.close();
 }
